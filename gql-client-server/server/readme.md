@@ -14,10 +14,83 @@ Mutation = Change data
 
 Resolver = Fetch or modify data based on a query or mutation
 
-Server setup
+**Server setup**
 
 startStandaloneServer: Best for quick setups and simple use cases. It abstracts away the need for direct interaction with Express, making it easier for beginners or for projects where a minimal setup is sufficient.
 // Passing an ApolloServer instance to the startStandaloneServer function: // 1. creates an Express app // 2. installs your ApolloServer instance as middleware // 3. prepares your app to handle incoming requests
 
 Manual Express Setup: Provides full control over the Express server configuration, allowing for more complex setups, custom middleware, and additional routes beyond the GraphQL endpoint.
 Query1 query ExampleQuery { getHello }
+
+---
+
+`Query Names:`
+Use descriptive names that represent the action being performed.
+Prefix queries with verbs like get, list, search, etc., to clarify their purpose.
+For example, getBook(id: ID!), listBooks, searchBooks, etc.
+---
+
+**_*schema*_**
+export const typeDefs = `
+book:{
+id:number,
+title:string,
+authorName:string,
+publishedYear:Number
+}
+`
+
+**schema defination Query**
+
+export const typeDefs = `
+  type Query {
+    getHello: String
+    books: [Book]
+    getBook(id: ID!): Book
+  }
+`;
+
+
+**Resolver**
+
+export const resolvers = {
+  Query: {
+    getHello: () => "Hello, world!",
+    books: () => DBBookData,
+    getBook: (id) =>
+      DBBookData.find((book) => {
+        book.id === id;
+      }),
+  },
+};
+
+
+
+**Query example**
+
+**Example1: Normal Function**
+query ExampleQuery {
+    getHello
+    books {
+        author
+        publishedYear
+    }
+}
+
+**Example1: Function with Parameter**
+query ExampleQuery($getBookId: ID!) {
+  getHello
+  
+  getBook(id: $getBookId) {
+    id
+    title
+    author
+    publishedYear
+  }
+}
+
+__variable pass argument:
+
+{
+  "getBookId": 1
+}

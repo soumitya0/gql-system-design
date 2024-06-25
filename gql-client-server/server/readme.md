@@ -94,3 +94,146 @@ __variable pass argument:
 {
   "getBookId": 1
 }
+
+
+
+**Mutation**
+In GraphQL, the ! symbol denotes a non-nullable field or return type. This means that the value must be provided and cannot be null.
+
+**Non-nullable Input Fields:**
+`addBook(title: String!, author: String!, publishedYear: Int!): Book!`
+title, author, and publishedYear input fields are marked with !
+This means that when you call the addBook mutation, you must provide values for these fields. They cannot be omitted or set to null.
+
+`updateBook(id: ID!, title: String, author: String, publishedYear: Int): Book`
+The id input field is marked with !, making it non-nullable, so you must provide an id 
+However, the title, author, and publishedYear fields are optional (nullable). You can provide any combination of these fields or none at all.
+
+**Non-nullable Return Type:**
+! in the return type ensures that the mutation must return a value.
+`addBook` guarantees a Book is returned.
+`updateBook` may return null if no book was updated.
+
+**schema Defination**
+export const typeDefs = `
+  type Book {
+    id: ID!
+    title: String!
+    author: String!
+    publishedYear: Int!
+  }
+
+  type Mutation {
+    addBook(title: String!, author: String!, publishedYear: Int!): Book!
+    updateBook(id: ID!, title: String, author: String, publishedYear: Int): Book
+    deleteBook(id: ID!): Book
+  }
+`;
+
+
+**Resolver**
+
+export const resolvers = {
+
+  Mutation: {
+    addBook: (_, { title, author, publishedYear }) => {
+      const newBook = {
+        id: String(DBBookData.length + 1),
+        title,
+        author,
+        publishedYear,
+      };
+      DBBookData.push(newBook);
+      return newBook;
+    },
+  },
+};
+
+
+**Query**
+**Example-1**
+mutation AddBook($title: String!, $author: String!, $publishedYear: Int!) {
+  addBook(title: $title, author: $author, publishedYear: $publishedYear) {
+    author
+    id
+    publishedYear
+    title
+  }
+}
+
+____varibale
+{  "title": "Soumitya Born to Rise",
+  "author": "soumitya",
+  "publishedYear": 2029,
+}
+
+**Example-2**
+mutation Mutation($deleteBookId: ID!) {
+  deleteBook(id: $deleteBookId) {
+    id
+    author
+  }
+}
+
+____variable
+{
+  "deleteBookId": "20"
+}
+
+
+**Example-3 multiple mutation call in single mulation obj**
+mutation Mutation($title: String!, $author: String!, $publishedYear: Int!, $deleteBookId: ID!, $updateBookId: ID!, $updateBookTitle2: String, $updateBookAuthor2: String, $updateBookPublishedYear2: Int) {
+  
+  addBook(title: $title, author: $author, publishedYear: $publishedYear) {
+    author
+    id
+    publishedYear
+    title
+  }
+  deleteBook(id: $deleteBookId) {
+    author
+    id
+    publishedYear
+  }
+  updateBook(id: $updateBookId, title: $updateBookTitle2, author: $updateBookAuthor2, publishedYear: $updateBookPublishedYear2) {
+    author
+    id
+    publishedYear
+    title
+  }
+}
+
+
+___variable
+{  "title": "NUMBER_1",
+  "author": "Gill",
+  "publishedYear": 2029,
+  "deleteBookId": "20",
+  "updateBookId": "15",
+  "updateBookTitle2": "Soumity the legend",
+  "updateBookAuthor2": "Soumitya",
+  "updateBookPublishedYear2": 2029
+}
+
+____return
+{
+  "data": {
+    "addBook": {
+      "author": "Gill",
+      "id": "20",
+      "publishedYear": 2029,
+      "title": "NUMBER_1"
+    },
+    "deleteBook": {
+      "author": "Gill",
+      "id": "20",
+      "publishedYear": 2029
+    },
+    "updateBook": {
+      "author": "Soumitya",
+      "id": "15",
+      "publishedYear": 2029,
+      "title": "Soumity the legend"
+    }
+  }
+}

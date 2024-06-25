@@ -12,4 +12,10 @@ export const typeDefs = `
     getBook(id: ID!): Book
   }
 
+  type Mutation {
+    addBook(title: String!, author: String!, publishedYear: Int!): Book!
+    updateBook(id: ID!, title: String, author: String, publishedYear: Int): Book
+    deleteBook(id: ID!): Book
+  }
+
 `;
